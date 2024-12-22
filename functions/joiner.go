@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"main/console"
+	"net/url"
 	"strings"
 )
 
@@ -17,6 +18,39 @@ type PropResponse struct {
 		ID   string `json:"id"`
 		Type int    `json:"type"`
 	}
+}
+
+func BuildClient(method, urlStr string, body io.Reader, token, cookie, properties *string) *http.Response {
+	client := &http.Client{}
+	
+	proxyURL, err := url.Parse("http://user:password@proxy-address:proxy-port")
+	if err != nil {
+		log.Fatalf("failed to parse proxy URL: %v\n", err)
+	}
+	client.Transport = &http.Transport{
+		Proxy: http.ProxyURL(proxyURL),
+	}
+
+	req, err := http.NewRequest(method, urlStr, body)
+	if err != nil {
+		log.Fatalf("failed to create request: %v\n", err)
+	}
+
+	if token != nil {
+		req.Header.Set("Authorization", *token)
+	}
+	if cookie != nil {
+		req.Header.Set("Cookie", *cookie)
+	}
+	if properties != nil {
+		req.Header.Set("X-Properties", *properties)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("failed to perform request: %v\n", err)
+	}
+	return resp
 }
 
 func JoinServer(token, invite, cookie, properties string) {
