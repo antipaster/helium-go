@@ -23,7 +23,7 @@ type PropResponse struct {
 func BuildClient(method, urlStr string, body io.Reader, token, cookie, properties *string) *http.Response {
 	client := &http.Client{}
 	
-	proxyURL, err := url.Parse("http://user:password@proxy-address:proxy-port")
+	proxyURL, err := url.Parse("http://user:password@ip:port")
 	if err != nil {
 		log.Fatalf("failed to parse proxy URL: %v\n", err)
 	}
